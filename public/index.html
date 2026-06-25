@@ -384,9 +384,16 @@ function renderShifts() {
 
 function renderCalendar() {
   const list = document.getElementById("cal-list");
-  const allEntries = Object.values(cache).flatMap(yearData =>
-    Object.entries(yearData).map(([date, val]) => ({ date, ...val }))
-  ).sort((a, b) => a.date.localeCompare(b.date));
+  // Olika års-cachar kan innehålla samma datum (t.ex. 1 jan returneras
+  // både som "nästa år" för föregående års nattpass och som eget år),
+  // dedupa på datum innan rendering.
+  const byDate = new Map();
+  for (const yearData of Object.values(cache)) {
+    for (const [date, val] of Object.entries(yearData)) {
+      byDate.set(date, { date, ...val });
+    }
+  }
+  const allEntries = [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
 
   if (allEntries.length === 0) {
     list.innerHTML = '<div class="empty">Inga år laddade ännu</div>';

@@ -407,9 +407,8 @@ function renderCalendar() {
       currentYear = year;
       html += `<div class="cal-year">${year}</div>`;
     }
-    const d = new Date(entry.date + "T12:00:00").toLocaleDateString("sv-SE", {
-      weekday: "short", day: "numeric", month: "short"
-    });
+    const weekday = new Date(entry.date + "T12:00:00").toLocaleDateString("sv-SE", { weekday: "short" });
+    const d = `${entry.date} (${weekday})`;
     html += `<div class="cal-row">
       <span class="cal-date">${d}</span>
       <span class="cal-name">${entry.name}</span>

@@ -91,6 +91,19 @@ async function fetchYearFromDagsmart(year) {
     obType: "s150f18"
   };
 
+  // Söndagen efter midsommardagen ger samma ersättning som midsommar,
+  // inte bara vanlig söndags-OB – läggs till manuellt eftersom Dagsmart
+  // inte listar den som högtid.
+  const midsommardag = Object.entries(result).find(([, v]) => v.code === "midsummerDay")?.[0];
+  if (midsommardag) {
+    const sondagEfter = fmt(addDays(new Date(midsommardag + "T12:00:00"), 1));
+    result[sondagEfter] = {
+      code:   "sundayAfterMidsummer",
+      name:   "söndag efter midsommardagen",
+      obType: "s150f07"
+    };
+  }
+
   // Lägg även till nyårsdagen nästa år (behövs för nattpasset nyårsafton)
   const nyarNast = `${year + 1}-01-01`;
   if (!result[nyarNast]) {

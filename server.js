@@ -105,8 +105,19 @@ async function fetchYearFromDagsmart(year) {
 }
 
 // Kontrollera om ett år är laddat i holidays-objektet
+// Notera: ett ej hämtat år kan ändå ha en post (t.ex. nyårsdagen som
+// lades till som frö av föregående års hämtning), så vi måste hålla
+// reda på faktiskt hämtade år separat i _meta.loadedYears.
 function yearIsLoaded(holidays, year) {
-  return Object.keys(holidays).some(d => d.startsWith(`${year}-`));
+  return Array.isArray(holidays._meta?.loadedYears) &&
+    holidays._meta.loadedYears.includes(year);
+}
+
+function markYearLoaded(holidays, year) {
+  if (!holidays._meta) holidays._meta = { loadedYears: [] };
+  if (!holidays._meta.loadedYears.includes(year)) {
+    holidays._meta.loadedYears.push(year);
+  }
 }
 
 // Servera statiska filer från /public
@@ -125,6 +136,7 @@ app.get("/api/holidays/:year", async (req, res) => {
     try {
       const fetched = await fetchYearFromDagsmart(year);
       Object.assign(holidays, fetched);
+      markYearLoaded(holidays, year);
       saveHolidays(holidays);
       console.log(`År ${year} hämtat och sparat i holidays.json`);
     } catch (err) {

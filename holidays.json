@@ -37,5 +37,6 @@
   "2026-12-25": { "code": "christmasDay",      "name": "juldagen",               "obType": "s150f07" },
   "2026-12-26": { "code": "boxingDay",         "name": "annandag jul",           "obType": "s150f07" },
   "2026-12-31": { "code": "newYearsEve",       "name": "nyårsafton",             "obType": "s150f07" },
-  "2027-01-01": { "code": "newYearsDay",       "name": "nyårsdagen",             "obType": "s150f07" }
+  "2027-01-01": { "code": "newYearsDay",       "name": "nyårsdagen",             "obType": "s150f07" },
+  "_meta": { "loadedYears": [2025, 2026] }
 }

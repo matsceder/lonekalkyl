@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Löneöversikt</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #ffffff;
+      --bg-secondary: #f5f5f4;
+      --bg-info: #e6f1fb;
+      --bg-warning: #faeeda;
+      --bg-danger: #fcebeb;
+      --text: #1a1a1a;
+      --text-secondary: #666;
+      --text-tertiary: #999;
+      --text-info: #185fa5;
+      --text-warning: #854f0b;
+      --text-danger: #a32d2d;
+      --border: rgba(0,0,0,0.12);
+      --border-secondary: rgba(0,0,0,0.22);
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1c1e;
+        --bg-secondary: #2c2c2e;
+        --bg-info: #0c447c;
+        --bg-warning: #633806;
+        --bg-danger: #791f1f;
+        --text: #f0f0f0;
+        --text-secondary: #aaa;
+        --text-tertiary: #777;
+        --text-info: #85b7eb;
+        --text-warning: #fac775;
+        --text-danger: #f09595;
+        --border: rgba(255,255,255,0.12);
+        --border-secondary: rgba(255,255,255,0.22);
+      }
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg-secondary); color: var(--text); font-size: 14px; min-height: 100vh; }
+    .container { max-width: 760px; margin: 0 auto; padding: 2rem 1rem; }
+    h1 { font-size: 22px; font-weight: 500; margin-bottom: 1.5rem; }
+    h2 { font-size: 16px; font-weight: 500; margin-bottom: 1rem; }
+    .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .tabs { display: flex; border-bottom: 0.5px solid var(--border); margin-bottom: 1.5rem; }
+    .tab { padding: 8px 16px; cursor: pointer; font-size: 14px; border: none; background: none; color: var(--text-secondary); border-bottom: 2px solid transparent; margin-bottom: -0.5px; }
+    .tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 12px; }
+    .field { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 120px; }
+    label { font-size: 13px; color: var(--text-secondary); }
+    input, select {
+      font-size: 14px; padding: 8px 10px; border: 0.5px solid var(--border-secondary);
+      border-radius: var(--radius-md); background: var(--bg); color: var(--text);
+      outline: none; width: 100%;
+    }
+    input:focus, select:focus { border-color: var(--text); }
+    .btn {
+      padding: 8px 16px; font-size: 14px; cursor: pointer;
+      border: 0.5px solid var(--border-secondary); border-radius: var(--radius-md);
+      background: transparent; color: var(--text); white-space: nowrap;
+    }
+    .btn:hover { background: var(--bg-secondary); }
+    .btn-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-sm { padding: 4px 10px; font-size: 12px; }
+    .btn-danger { color: var(--text-danger); border-color: var(--text-danger); }
+    .btn-danger:hover { background: var(--bg-danger); }
+    .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+    .metric { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 1rem; }
+    .metric-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
+    .metric-value { font-size: 22px; font-weight: 500; }
+    .metric-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+    .shift-row { padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+    .shift-row:last-child { border-bottom: none; }
+    .shift-main { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .tag { font-size: 12px; padding: 2px 8px; border-radius: var(--radius-md); border: 0.5px solid; white-space: nowrap; }
+    .tag-ot  { background: var(--bg-warning);  color: var(--text-warning);  border-color: var(--text-warning); }
+    .tag-reg { background: var(--bg-secondary); color: var(--text-secondary); border-color: var(--border-secondary); }
+    .tag-hol { background: var(--bg-info);      color: var(--text-info);     border-color: var(--text-info); }
+    .shift-earn { text-align: right; font-size: 14px; font-weight: 500; min-width: 120px; }
+    .shift-detail { margin-top: 6px; padding: 8px 10px; background: var(--bg-secondary); border-radius: var(--radius-md); font-size: 12px; color: var(--text-secondary); display: none; }
+    .shift-detail.open { display: block; }
+    .detail-row { display: flex; justify-content: space-between; padding: 2px 0; }
+    .detail-total { border-top: 0.5px solid var(--border); margin-top: 4px; padding-top: 4px; font-weight: 500; color: var(--text); }
+    .toggle-btn { font-size: 12px; color: var(--text-tertiary); cursor: pointer; background: none; border: none; padding: 2px 4px; }
+    .empty { text-align: center; color: var(--text-tertiary); padding: 2rem; }
+    .sep { border: none; border-top: 0.5px solid var(--border); margin: 1.5rem 0; }
+    .status { font-size: 13px; color: var(--text-secondary); margin-top: 8px; min-height: 20px; }
+    .status.error { color: var(--text-danger); }
+    .cal-year { font-size: 13px; font-weight: 500; color: var(--text-secondary); margin: 1rem 0 4px; }
+    .cal-row { display: flex; gap: 8px; align-items: center; padding: 5px 0; border-bottom: 0.5px solid var(--border); font-size: 13px; }
+    .cal-row:last-child { border-bottom: none; }
+    .cal-date { min-width: 110px; color: var(--text-secondary); }
+    .cal-name { flex: 1; }
+    .cal-type { font-size: 11px; color: var(--text-tertiary); min-width: 100px; text-align: right; }
+    code { font-family: monospace; font-size: 12px; background: var(--bg-secondary); padding: 2px 6px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Löneöversikt</h1>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('shifts',this)">Pass</button>
+    <button class="tab" onclick="switchTab('calendar',this)">Kalender</button>
+  </div>
+
+  <div id="tab-shifts" class="tab-content active">
+    <div class="card">
+      <div class="row" style="margin-bottom:1.5rem;">
+        <div class="field" style="max-width:200px;">
+          <label>Månadslön (kr)</label>
+          <input type="number" id="salary" value="35000" min="1" step="1000">
+        </div>
+      </div>
+      <h2>Lägg till pass</h2>
+      <div class="row">
+        <div class="field"><label>Datum</label><input type="date" id="shift-date"></div>
+        <div class="field"><label>Pass</label>
+          <select id="shift-type">
+            <option value="day">Dag (07–19)</option>
+            <option value="night">Natt (19–07)</option>
+          </select>
+        </div>
+        <div class="field"><label>Typ</label>
+          <select id="shift-ot">
+            <option value="0">Ordinarie</option>
+            <option value="1">Övertid</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="addShift()">
+          <i class="ti ti-plus"></i> Lägg till
+        </button>
+      </div>
+      <div id="shift-status" class="status"></div>
+    </div>
+
+    <div id="summary-section" style="display:none;">
+      <div class="metric-grid" id="metrics"></div>
+      <hr class="sep">
+    </div>
+
+    <div class="card">
+      <h2>Pass</h2>
+      <div id="shift-list"><div class="empty">Inga pass tillagda än</div></div>
+    </div>
+  </div>
+
+  <div id="tab-calendar" class="tab-content">
+    <div class="card">
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;">
+        Högtider hämtas automatiskt från <a href="https://dagsmart.se" target="_blank">Dagsmart</a>
+        när ett nytt år efterfrågas och sparas i <code>holidays.json</code> i repot.
+        Commita filen för att dela uppdateringar med kollegor.
+      </p>
+    </div>
+    <div class="card">
+      <h2>Laddade högtider</h2>
+      <div id="cal-list"><div class="empty">Inga år laddade ännu</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const OB_TYPE_LABEL = {
+  s150f07: "/150 från 07",
+  s150f18: "/150 från 18",
+  hof07:   "/300 från 07",
+  hol300:  "Röd dag /300"
+};
+
+// Cache per år: { year -> { date -> { code, name, obType } } }
+const cache = {};
+
+async function ensureYear(year) {
+  if (cache[year]) return true;
+  const statusEl = document.getElementById("shift-status");
+  statusEl.textContent = `Hämtar kalender för ${year}…`;
+  statusEl.className = "status";
+  try {
+    const res = await fetch(`/api/holidays/${year}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    cache[year] = data;
+    renderCalendar();
+    statusEl.textContent = `Kalender för ${year} laddad.`;
+    return true;
+  } catch (e) {
+    statusEl.textContent = `Fel: ${e.message}`;
+    statusEl.className = "status error";
+    return false;
+  }
+}
+
+function getHol(dateStr) {
+  const year = parseInt(dateStr.split("-")[0]);
+  return cache[year]?.[dateStr] || null;
+}
+
+function getNextDate(dateStr) {
+  const d = new Date(dateStr + "T12:00:00");
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().split("T")[0];
+}
+
+function dow(dateStr) { return new Date(dateStr + "T12:00:00").getDay(); }
+
+function fmtDate(dateStr) {
+  return new Date(dateStr + "T12:00:00").toLocaleDateString("sv-SE", {
+    weekday: "short", day: "numeric", month: "short", year: "numeric"
+  });
+}
+function fmtDateShort(dateStr) {
+  return new Date(dateStr + "T12:00:00").toLocaleDateString("sv-SE", {
+    weekday: "short", day: "numeric", month: "short"
+  });
+}
+
+function obRateForHour(h, dateStr, salary) {
+  const hol  = getHol(dateStr);
+  const type = hol?.obType || null;
+  const d    = dow(dateStr);
+  const isSat = d === 6, isSun = d === 0, isWd = d >= 1 && d <= 5;
+  const is150f07 = type === "s150f07";
+  const is150f18 = type === "s150f18";
+  const isHof07  = type === "hof07";
+  const isHol    = !!hol;
+
+  if (h < 7) {
+    if (is150f07 || is150f18) return salary / 150;
+    if (isHol || isSun || isSat) return salary / 300;
+    return salary / 400;
+  }
+  if (h < 18) {
+    if (is150f07 || is150f18) return salary / 150;
+    if (isHol || isHof07 || isSun || isSat) return salary / 300;
+    return 0;
+  }
+  if (is150f07 || is150f18) return salary / 150;
+  if (isHol || isHof07 || isSun || isSat) return salary / 300;
+  if (isWd) return salary / 600;
+  return 0;
+}
+
+function otRateForHour(h, dateStr, salary) {
+  const d = dow(dateStr);
+  const isWd = d >= 1 && d <= 5;
+  const isHol = !!getHol(dateStr);
+  if (isWd && !isHol && h >= 6 && h < 20) return salary / 94;
+  return salary / 72;
+}
+
+function getWorkedHours(shiftType, dateStr) {
+  if (shiftType === "day") {
+    const hours = [];
+    for (let h = 7; h < 19; h++) if (h !== 12) hours.push({ h, date: dateStr });
+    return hours;
+  }
+  const next = getNextDate(dateStr);
+  const raw = [];
+  for (let h = 19; h < 24; h++) raw.push({ h, date: dateStr });
+  for (let h = 0;  h < 7;  h++) raw.push({ h, date: next });
+  raw.splice(1, 1);
+  return raw;
+}
+
+function calcDetails(dateStr, shiftType, salary, isOT) {
+  const hours = getWorkedHours(shiftType, dateStr);
+  const rows = [];
+  let total = 0;
+  for (const { h, date } of hours) {
+    const rate = isOT ? otRateForHour(h, date, salary) : obRateForHour(h, date, salary);
+    total += rate;
+    if (rate > 0) {
+      rows.push({ h, date, div: Math.round(salary / rate), kr: rate });
+    }
+  }
+  return { rows, total: Math.round(total) };
+}
+
+let shifts = [], shiftId = 0;
+
+async function addShift() {
+  const dateVal   = document.getElementById("shift-date").value;
+  if (!dateVal) { alert("Ange ett datum"); return; }
+  const shiftType = document.getElementById("shift-type").value;
+  const isOT      = document.getElementById("shift-ot").value === "1";
+  const year      = parseInt(dateVal.split("-")[0]);
+  const nextYear  = parseInt(getNextDate(dateVal).split("-")[0]);
+
+  const ok1 = await ensureYear(year);
+  if (nextYear !== year) await ensureYear(nextYear);
+  if (!ok1) return;
+
+  shifts.push({ id: ++shiftId, date: dateVal, shiftType, isOT });
+  shifts.sort((a, b) => a.date.localeCompare(b.date));
+  renderShifts();
+}
+
+function removeShift(id) {
+  shifts = shifts.filter(s => s.id !== id);
+  renderShifts();
+}
+
+function toggleDetail(id) {
+  document.getElementById("detail-" + id)?.classList.toggle("open");
+}
+
+function renderShifts() {
+  const salary = parseFloat(document.getElementById("salary").value) || 0;
+  const list   = document.getElementById("shift-list");
+
+  if (shifts.length === 0) {
+    list.innerHTML = '<div class="empty">Inga pass tillagda än</div>';
+    document.getElementById("summary-section").style.display = "none";
+    return;
+  }
+
+  let totalOB = 0, totalOT = 0, html = "";
+
+  for (const s of shifts) {
+    const next    = getNextDate(s.date);
+    const hol     = getHol(s.date);
+    const holNext = s.shiftType === "night" ? getHol(next) : null;
+    const holName = hol?.name || holNext?.name || null;
+    const dateLabel = s.shiftType === "night"
+      ? `${fmtDate(s.date)} → ${fmtDateShort(next)}`
+      : fmtDate(s.date);
+    const passLabel = s.shiftType === "day" ? "Dag 07–19" : "Natt 19–07";
+    const det = calcDetails(s.date, s.shiftType, salary, s.isOT);
+
+    if (s.isOT) totalOT += det.total;
+    else totalOB += det.total;
+
+    const earnLabel = s.isOT
+      ? `+${det.total.toLocaleString("sv-SE")} kr`
+      : det.total > 0 ? `+${det.total.toLocaleString("sv-SE")} kr OB` : "Ingen OB";
+
+    const detailHtml = det.rows.length > 0
+      ? det.rows.map(r =>
+          `<div class="detail-row">
+            <span>kl ${String(r.h).padStart(2,"0")}–${String(r.h+1).padStart(2,"0")} &nbsp;(${r.date}) &nbsp;/${r.div}</span>
+            <span>+${Math.round(r.kr).toLocaleString("sv-SE")} kr</span>
+          </div>`).join("")
+        + `<div class="detail-row detail-total"><span>Totalt</span><span>+${det.total.toLocaleString("sv-SE")} kr</span></div>`
+      : "<div style='color:var(--text-tertiary)'>Inga tillägg för detta pass</div>";
+
+    html += `<div class="shift-row">
+      <div class="shift-main">
+        <span class="tag ${s.isOT ? "tag-ot" : "tag-reg"}">${s.isOT ? "Övertid" : "Ordinarie"}</span>
+        ${holName ? `<span class="tag tag-hol">${holName}</span>` : ""}
+        <div style="flex:1;min-width:180px;">
+          <strong>${dateLabel}</strong><br>
+          <span style="color:var(--text-secondary);font-size:12px;">${passLabel}</span>
+        </div>
+        <div class="shift-earn">${earnLabel}</div>
+        <button class="toggle-btn" onclick="toggleDetail(${s.id})"><i class="ti ti-chevron-down"></i></button>
+        <button class="btn btn-danger btn-sm" onclick="removeShift(${s.id})"><i class="ti ti-trash"></i></button>
+      </div>
+      <div class="shift-detail" id="detail-${s.id}">${detailHtml}</div>
+    </div>`;
+  }
+
+  list.innerHTML = html;
+
+  const total = totalOB + totalOT;
+  document.getElementById("metrics").innerHTML = `
+    <div class="metric"><div class="metric-label">Grundlön</div><div class="metric-value">${salary.toLocaleString("sv-SE")} kr</div><div class="metric-sub">fast månadslön</div></div>
+    <div class="metric"><div class="metric-label">OB-tillägg</div><div class="metric-value">+${totalOB.toLocaleString("sv-SE")} kr</div><div class="metric-sub">ordinarie pass</div></div>
+    <div class="metric"><div class="metric-label">Övertidsersättning</div><div class="metric-value">+${totalOT.toLocaleString("sv-SE")} kr</div><div class="metric-sub">övertidspass</div></div>
+    <div class="metric"><div class="metric-label">Total lön</div><div class="metric-value">${(salary + total).toLocaleString("sv-SE")} kr</div><div class="metric-sub">före skatt</div></div>
+  `;
+  document.getElementById("summary-section").style.display = "block";
+}
+
+function renderCalendar() {
+  const list = document.getElementById("cal-list");
+  const allEntries = Object.values(cache).flatMap(yearData =>
+    Object.entries(yearData).map(([date, val]) => ({ date, ...val }))
+  ).sort((a, b) => a.date.localeCompare(b.date));
+
+  if (allEntries.length === 0) {
+    list.innerHTML = '<div class="empty">Inga år laddade ännu</div>';
+    return;
+  }
+
+  let html = "", currentYear = null;
+  for (const entry of allEntries) {
+    const year = entry.date.split("-")[0];
+    if (year !== currentYear) {
+      currentYear = year;
+      html += `<div class="cal-year">${year}</div>`;
+    }
+    const d = new Date(entry.date + "T12:00:00").toLocaleDateString("sv-SE", {
+      weekday: "short", day: "numeric", month: "short"
+    });
+    html += `<div class="cal-row">
+      <span class="cal-date">${d}</span>
+      <span class="cal-name">${entry.name}</span>
+      <span class="cal-type">${OB_TYPE_LABEL[entry.obType]}</span>
+    </div>`;
+  }
+  list.innerHTML = html;
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
+  document.getElementById("tab-" + tab).classList.add("active");
+  btn.classList.add("active");
+}
+
+document.getElementById("salary").addEventListener("input", renderShifts);
+document.getElementById("shift-date").value = new Date().toISOString().split("T")[0];
+
+// Ladda innevarande år direkt vid start
+ensureYear(new Date().getFullYear());
+</script>
+</body>
+</html>
